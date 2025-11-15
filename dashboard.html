@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - DocGenAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="nav-container">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <h1>DocGen<span class="ai">AI</span></h1>
+                </div>
+                <nav class="nav-menu">
+                    <div class="user-menu">
+                        <span class="welcome">Welcome, {{ username }}</span>
+                        <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                        <a href="/history" class="nav-link"><i class="fas fa-history"></i> History</a>
+                        <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- Dashboard Content -->
+        <main class="dashboard-content">
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+                <p>Welcome back! Here's your documentation overview.</p>
+            </div>
+
+            <!-- Analytics Cards -->
+            <div class="analytics-grid">
+                <div class="analytics-card primary">
+                    <div class="analytics-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="analytics-content">
+                        <span class="analytics-value">{{ analytics.total_docs }}</span>
+                        <span class="analytics-label">Total Documents</span>
+                    </div>
+                </div>
+
+                <div class="analytics-card success">
+                    <div class="analytics-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="analytics-content">
+                        <span class="analytics-value">{{ analytics.favorite_docs }}</span>
+                        <span class="analytics-label">Favorites</span>
+                    </div>
+                </div>
+
+                <div class="analytics-card warning">
+                    <div class="analytics-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <div class="analytics-content">
+                        <span class="analytics-value">{{ analytics.popular_language }}</span>
+                        <span class="analytics-label">Top Language</span>
+                    </div>
+                </div>
+
+                <div class="analytics-card info">
+                    <div class="analytics-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="analytics-content">
+                        <span class="analytics-value">{{ (analytics.total_docs / 30 * 100)|round|int }}%</span>
+                        <span class="analytics-label">Monthly Progress</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                <div class="actions-grid">
+                    <a href="/" class="action-card primary">
+                        <i class="fas fa-magic"></i>
+                        <span>Generate New Documentation</span>
+                    </a>
+                    <a href="/history" class="action-card success">
+                        <i class="fas fa-history"></i>
+                        <span>View History</span>
+                    </a>
+                    <a href="#" class="action-card warning">
+                        <i class="fas fa-star"></i>
+                        <span>Favorites</span>
+                    </a>
+                    <a href="#" class="action-card info">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Recent Documents -->
+            <div class="recent-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-clock"></i> Recent Documents</h3>
+                    <a href="/history" class="view-all">View All</a>
+                </div>
+
+                {% if recent_docs %}
+                <div class="docs-table">
+                    <div class="table-header">
+                        <div class="col-title">Title</div>
+                        <div class="col-language">Language</div>
+                        <div class="col-template">Template</div>
+                        <div class="col-date">Created</div>
+                        <div class="col-actions">Actions</div>
+                    </div>
+                    
+                    {% for doc in recent_docs %}
+                    <div class="table-row">
+                        <div class="col-title">
+                            <i class="fas fa-file-alt"></i>
+                            {{ doc.title }}
+                        </div>
+                        <div class="col-language">
+                            <span class="language-badge">{{ doc.language }}</span>
+                        </div>
+                        <div class="col-template">
+                            <span class="template-badge {{ doc.template }}">{{ doc.template }}</span>
+                        </div>
+                        <div class="col-date">
+                            {{ doc.created_at.strftime('%Y-%m-%d') }}
+                        </div>
+                        <div class="col-actions">
+                            <div class="action-buttons">
+                                <a href="/export/{{ doc.id }}/pdf" class="btn-icon" title="Download PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                                <a href="/export/{{ doc.id }}/markdown" class="btn-icon" title="Download Markdown">
+                                    <i class="fas fa-file-code"></i>
+                                </a>
+                                <button class="btn-icon favorite" title="Add to Favorites">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-file-alt"></i>
+                    <h3>No Documents Yet</h3>
+                    <p>You haven't generated any documentation yet. Start by creating your first one!</p>
+                    <a href="/" class="action-btn primary">
+                        <i class="fas fa-magic"></i> Generate Documentation
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Activity Stats -->
+            <div class="stats-section">
+                <h3><i class="fas fa-chart-bar"></i> Activity Overview</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">This Week</span>
+                            <span class="stat-label">{{ (analytics.total_docs / 4)|round|int }} docs</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">Productivity</span>
+                            <span class="stat-label">{{ (analytics.total_docs / 10 * 100)|round|int }}%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-target"></i>
+                        </div>
+                        <div class="stat-content">
+                            <span class="stat-value">Goal Progress</span>
+                            <span class="stat-label">{{ (analytics.total_docs / 50 * 100)|round|int }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with <i class="fas fa-heart" style="color: #ff4757;"></i> using Flask & Google Gemini API</p>
+            <p>© 2024 DocGenAI - Modern Tool Usage Competition</p>
+        </footer>
+    </div>
+
+    <script>
+        // Favorite functionality
+        document.querySelectorAll('.favorite').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                this.innerHTML = this.classList.contains('active') ? 
+                    '<i class="fas fa-star" style="color: #f59e0b;"></i>' : 
+                    '<i class="fas fa-star"></i>';
+            });
+        });
+    </script>
+</body>
+</html>

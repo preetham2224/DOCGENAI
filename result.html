@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Documentation Results - DocGenAI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="nav-container">
+        <div class="logo">
+          <i class="fas fa-robot"></i>
+          <h1>DocGen<span class="ai">AI</span></h1>
+        </div>
+        <nav class="nav-menu">
+          {% if session.username %}
+            <div class="user-menu">
+              <span class="welcome">Welcome, {{ session.username }}</span>
+              <a href="/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+              <a href="/history" class="nav-link"><i class="fas fa-history"></i> History</a>
+              <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+            </div>
+          {% else %}
+            <div class="auth-links">
+              <a href="/login" class="nav-link">Login</a>
+              <a href="/register" class="nav-link primary">Sign Up</a>
+            </div>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
+
+    <!-- Back Button -->
+    <nav class="nav-breadcrumb">
+      <a href="/" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Generator
+      </a>
+    </nav>
+
+    <!-- Results Content -->
+    <main class="results-content">
+      <!-- Success Header -->
+      <div class="success-header">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="success-text">
+          <h1>Documentation Generated Successfully!</h1>
+          <p>Your code has been analyzed and comprehensive documentation has been created.</p>
+        </div>
+      </div>
+
+      <!-- Document Overview -->
+      <div class="document-overview">
+        <div class="overview-card">
+          <div class="overview-header">
+            <h3><i class="fas fa-file-alt"></i> Document Overview</h3>
+          </div>
+          <div class="overview-content">
+            <div class="overview-grid">
+              <div class="overview-item">
+                <span class="overview-label">Document Title</span>
+                <span class="overview-value">{{ title }}</span>
+              </div>
+              <div class="overview-item">
+                <span class="overview-label">Template Used</span>
+                <span class="overview-value badge badge-{{ template }}">{{ template }}</span>
+              </div>
+              <div class="overview-item">
+                <span class="overview-label">Generated On</span>
+                <span class="overview-value">{{ now.strftime('%B %d, %Y at %H:%M') if now else 'Just now' }}</span>
+              </div>
+              <div class="overview-item">
+                <span class="overview-label">Document ID</span>
+                <span class="overview-value">#{{ doc_id }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Metrics -->
+      <div class="metrics-section">
+        <div class="section-header">
+          <h2><i class="fas fa-chart-bar"></i> Code Analysis</h2>
+          <p>Detailed metrics from your code analysis</p>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-icon primary">
+              <i class="fas fa-bars"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value">{{ metrics.total_lines }}</span>
+              <span class="metric-label">Total Lines</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon success">
+              <i class="fas fa-code"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value">{{ metrics.logic_lines }}</span>
+              <span class="metric-label">Logic Lines</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon warning">
+              <i class="fas fa-comment"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value">{{ metrics.comment_ratio }}</span>
+              <span class="metric-label">Comment Ratio</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon danger">
+              <i class="fas fa-brain"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value">{{ metrics.complexity_score }}</span>
+              <span class="metric-label">Complexity Score</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon info">
+              <i class="fas fa-star"></i>
+            </div>
+            <div class="metric-info">
+              <span class="metric-value">{{ metrics.quality_score }}/100</span>
+              <span class="metric-label">Quality Score</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quality Insights -->
+      <div class="insights-section">
+        <div class="insights-card">
+          <div class="insights-header">
+            <h3><i class="fas fa-lightbulb"></i> Code Quality Insights</h3>
+          </div>
+          <div class="insights-content">
+            {% if metrics.quality_score >= 80 %}
+            <div class="insight-item success">
+              <i class="fas fa-trophy"></i>
+              <div class="insight-text">
+                <strong>Excellent Code Quality</strong>
+                <p>Your code demonstrates excellent structure, documentation, and maintainability.</p>
+              </div>
+            </div>
+            {% elif metrics.quality_score >= 60 %}
+            <div class="insight-item info">
+              <i class="fas fa-thumbs-up"></i>
+              <div class="insight-text">
+                <strong>Good Code Quality</strong>
+                <p>Your code is well-structured with good documentation practices.</p>
+              </div>
+            </div>
+            {% else %}
+            <div class="insight-item warning">
+              <i class="fas fa-tools"></i>
+              <div class="insight-text">
+                <strong>Needs Improvement</strong>
+                <p>Consider adding more comments and refactoring complex sections.</p>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if metrics.comment_ratio|replace('%','')|float < 15 %}
+            <div class="insight-item warning">
+              <i class="fas fa-comment-slash"></i>
+              <div class="insight-text">
+                <strong>Low Documentation</strong>
+                <p>Consider adding more comments to improve code readability.</p>
+              </div>
+            </div>
+            {% elif metrics.comment_ratio|replace('%','')|float > 40 %}
+            <div class="insight-item info">
+              <i class="fas fa-comment-dots"></i>
+              <div class="insight-text">
+                <strong>Well Documented</strong>
+                <p>Great job on code documentation and comments.</p>
+              </div>
+            </div>
+            {% endif %}
+
+            {% if metrics.complexity_score > 15 %}
+            <div class="insight-item danger">
+              <i class="fas fa-project-diagram"></i>
+              <div class="insight-text">
+                <strong>High Complexity</strong>
+                <p>Consider breaking down complex functions into smaller, more manageable pieces.</p>
+              </div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Documentation Container -->
+      <div class="documentation-section">
+        <div class="section-header">
+          <h2><i class="fas fa-book"></i> Generated Documentation</h2>
+          <p>Comprehensive documentation for your code</p>
+        </div>
+
+        <div class="documentation-container">
+          <div class="doc-toolbar">
+            <div class="toolbar-left">
+              <h3>{{ title }}</h3>
+              <span class="doc-badge">{{ template }} template</span>
+            </div>
+            <div class="toolbar-right">
+              <!-- Enhanced Download Button -->
+              <div class="download-dropdown">
+                <button class="download-btn primary">
+                  <i class="fas fa-download"></i>
+                  Download Documentation
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="download-menu">
+                  {% if doc_id %}
+                  <a href="/export/{{ doc_id }}/pdf" class="download-option">
+                    <i class="fas fa-file-pdf"></i>
+                    <div class="option-content">
+                      <span class="option-title">PDF Document</span>
+                      <span class="option-desc">Professional format for sharing</span>
+                    </div>
+                  </a>
+                  <a href="/export/{{ doc_id }}/markdown" class="download-option">
+                    <i class="fas fa-file-code"></i>
+                    <div class="option-content">
+                      <span class="option-title">Markdown</span>
+                      <span class="option-desc">Raw markdown format</span>
+                    </div>
+                  </a>
+                  <a href="/export/{{ doc_id }}/html" class="download-option">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="option-content">
+                      <span class="option-title">HTML File</span>
+                      <span class="option-desc">Web-ready format</span>
+                    </div>
+                  </a>
+                  {% else %}
+                  <a href="#" class="download-option" onclick="exportDocumentation('pdf')">
+                    <i class="fas fa-file-pdf"></i>
+                    <div class="option-content">
+                      <span class="option-title">PDF Document</span>
+                      <span class="option-desc">Professional format for sharing</span>
+                    </div>
+                  </a>
+                  <a href="#" class="download-option" onclick="exportDocumentation('markdown')">
+                    <i class="fas fa-file-code"></i>
+                    <div class="option-content">
+                      <span class="option-title">Markdown</span>
+                      <span class="option-desc">Raw markdown format</span>
+                    </div>
+                  </a>
+                  <a href="#" class="download-option" onclick="exportDocumentation('html')">
+                    <i class="fas fa-file-alt"></i>
+                    <div class="option-content">
+                      <span class="option-title">HTML File</span>
+                      <span class="option-desc">Web-ready format</span>
+                    </div>
+                  </a>
+                  {% endif %}
+                </div>
+              </div>
+
+              <button class="toolbar-btn" onclick="copyDocumentation()">
+                <i class="fas fa-copy"></i>
+                Copy Text
+              </button>
+              
+              <button class="toolbar-btn" onclick="window.print()">
+                <i class="fas fa-print"></i>
+                Print
+              </button>
+            </div>
+          </div>
+
+          <div class="doc-content" id="docContent">
+            {{ documentation | safe }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions-section">
+        <div class="actions-grid">
+          <a href="/" class="action-card primary">
+            <div class="action-icon">
+              <i class="fas fa-magic"></i>
+            </div>
+            <div class="action-content">
+              <h4>Generate Another</h4>
+              <p>Create documentation for new code</p>
+            </div>
+          </a>
+
+          {% if session.username %}
+          <a href="/dashboard" class="action-card success">
+            <div class="action-icon">
+              <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <div class="action-content">
+              <h4>View Dashboard</h4>
+              <p>See your documentation history</p>
+            </div>
+          </a>
+
+          <a href="/history" class="action-card info">
+            <div class="action-icon">
+              <i class="fas fa-history"></i>
+            </div>
+            <div class="action-content">
+              <h4>Document History</h4>
+              <p>Browse all your generated docs</p>
+            </div>
+          </a>
+          {% else %}
+          <a href="/register" class="action-card success">
+            <div class="action-icon">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="action-content">
+              <h4>Create Account</h4>
+              <p>Save your documentation history</p>
+            </div>
+          </a>
+          {% endif %}
+
+          <button class="action-card warning" onclick="shareDocumentation()">
+            <div class="action-icon">
+              <i class="fas fa-share-alt"></i>
+            </div>
+            <div class="action-content">
+              <h4>Share Results</h4>
+              <p>Share with team members</p>
+            </div>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>DocGenAI</h4>
+          <p>AI-powered code documentation generator</p>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <a href="/">Home</a>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/history">History</a>
+        </div>
+        <div class="footer-section">
+          <h4>Support</h4>
+          <a href="#">Help Center</a>
+          <a href="#">Contact Us</a>
+          <a href="#">Feedback</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Built with <i class="fas fa-heart" style="color: #ff4757;"></i> using Flask & Google Gemini API</p>
+        <p>© 2024 DocGenAI - Modern Tool Usage Competition</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Copy Documentation
+    function copyDocumentation() {
+      const docContent = document.querySelector('.doc-content').innerText;
+      navigator.clipboard.writeText(docContent).then(() => {
+        // Show notification
+        showNotification('Documentation copied to clipboard!', 'success');
+      }).catch(() => {
+        showNotification('Failed to copy documentation', 'error');
+      });
+    }
+
+    // Export Documentation (fallback)
+    function exportDocumentation(format) {
+      showNotification(`Exporting as ${format.toUpperCase()}...`, 'info');
+      // This would be handled by server-side routes
+    }
+
+    // Share Documentation
+    function shareDocumentation() {
+      if (navigator.share) {
+        navigator.share({
+          title: '{{ title }} - Documentation',
+          text: 'Check out this documentation generated by DocGenAI',
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          showNotification('Link copied to clipboard!', 'success');
+        });
+      }
+    }
+
+    // Notification System
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `notification notification-${type}`;
+      notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation-triangle' : 'info'}"></i>
+        <span>${message}</span>
+        <button onclick="this.parentElement.remove()">
+          <i class="fas fa-times"></i>
+        </button>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 5000);
+    }
+
+    // Download dropdown functionality
+    document.addEventListener('click', function(e) {
+      const dropdowns = document.querySelectorAll('.download-dropdown');
+      dropdowns.forEach(dropdown => {
+        if (!dropdown.contains(e.target)) {
+          dropdown.classList.remove('active');
+        }
+      });
+    });
+
+    document.querySelectorAll('.download-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.parentElement.classList.toggle('active');
+      });
+    });
+
+    // Add syntax highlighting
+    document.addEventListener('DOMContentLoaded', function() {
+      const codeBlocks = document.querySelectorAll('.doc-content pre code');
+      codeBlocks.forEach(block => {
+        block.classList.add('syntax-highlight');
+      });
+    });
+  </script>
+</body>
+</html>

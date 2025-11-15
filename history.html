@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation History - DocGenAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header with Navigation -->
+        <header class="header">
+            <div class="nav-container">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <h1>DocGen<span class="ai">AI</span></h1>
+                </div>
+                <nav class="nav-menu">
+                    <div class="user-menu">
+                        <span class="welcome">Welcome, {{ session.username }}</span>
+                        <a href="/" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                        <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </div>
+                </nav>
+            </div>
+        </header>
+
+        <!-- History Content -->
+        <main class="history-content">
+            <div class="section-header">
+                <h2><i class="fas fa-history"></i> Documentation History</h2>
+                <p>Your previously generated documentation</p>
+            </div>
+
+            {% if docs %}
+            <div class="history-grid">
+                {% for doc in docs %}
+                <div class="history-card">
+                    <div class="history-card-header">
+                        <h3>{{ doc.title }}</h3>
+                        <div class="doc-actions">
+                            <span class="doc-badge {{ doc.template }}">{{ doc.template }}</span>
+                            {% if doc.is_favorite %}
+                            <i class="fas fa-star favorite"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="history-card-body">
+                        <div class="doc-meta">
+                            <span><i class="fas fa-file-code"></i> {{ doc.filename }}</span>
+                            <span><i class="fas fa-code"></i> {{ doc.language }}</span>
+                            <span><i class="fas fa-calendar"></i> {{ doc.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+                        </div>
+                        
+                        <div class="doc-preview">
+                            {{ doc.documentation_content[:200] }}...
+                        </div>
+                    </div>
+                    
+                    <div class="history-card-footer">
+                        <div class="action-buttons">
+                            <a href="#" class="action-btn small primary">
+                                <i class="fas fa-eye"></i> View
+                            </a>
+                            <a href="/export/{{ doc.id }}/markdown" class="action-btn small secondary">
+                                <i class="fas fa-download"></i> Export
+                            </a>
+                            <button class="action-btn small {{ 'favorite' if doc.is_favorite else 'secondary' }}">
+                                <i class="fas fa-star"></i> Favorite
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if total_pages > 1 %}
+            <div class="pagination">
+                {% if page > 1 %}
+                <a href="?page={{ page - 1 }}" class="page-link">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+                {% endif %}
+                
+                <span class="page-info">Page {{ page }} of {{ total_pages }}</span>
+                
+                {% if page < total_pages %}
+                <a href="?page={{ page + 1 }}" class="page-link">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-file-alt"></i>
+                <h3>No Documentation Yet</h3>
+                <p>You haven't generated any documentation yet. Start by creating your first one!</p>
+                <a href="/" class="action-btn primary">
+                    <i class="fas fa-magic"></i> Generate Documentation
+                </a>
+            </div>
+            {% endif %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Built with <i class="fas fa-heart" style="color: #ff4757;"></i> using Flask & Google Gemini API</p>
+            <p>© 2024 DocGenAI - Modern Tool Usage Competition</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!-- templates/index.html - Enhanced Version -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DocGenAI - AI-Powered Code Documentation Generator</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <!-- Header with Navigation -->
+    <header class="header">
+      <div class="nav-container">
+        <div class="logo">
+          <i class="fas fa-robot"></i>
+          <h1>DocGen<span class="ai">AI</span></h1>
+        </div>
+        <nav class="nav-menu">
+            {% if username %}
+                <div class="user-menu">
+                    <span class="welcome">Welcome, {{ username }}</span>
+                    <a href="/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/history" class="nav-link"><i class="fas fa-history"></i> History</a>
+                    <a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            {% else %}
+                <div class="auth-links">
+                    <a href="/login" class="nav-link">Login</a>
+                    <a href="/register" class="nav-link primary">Sign Up</a>
+                </div>
+            {% endif %}
+        </nav>
+      </div>
+      <p class="tagline">From Code to Comprehensive Documentation in Seconds</p>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class="flash-message">
+          {% for message in messages %}
+            <div class="flash-content">
+              <i class="fas fa-exclamation-circle"></i>
+              <p>{{ message }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-text">
+          <h2>Transform Your Code into Professional Documentation</h2>
+          <p>Leverage the power of AI to generate comprehensive, structured documentation for multiple programming languages. Perfect for developers, students, and teams.</p>
+          
+          <!-- Quick Stats -->
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="stat-number">15+</span>
+              <span class="stat-label">Languages</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">4</span>
+              <span class="stat-label">Templates</span>
+            </div>
+            <div class="stat">
+              <span class="stat-number">∞</span>
+              <span class="stat-label">Possibilities</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Features Grid -->
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-language"></i>
+            </div>
+            <h3>Multi-Language</h3>
+            <p>Supports 15+ programming languages including Python, JavaScript, Java, and more</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-layer-group"></i>
+            </div>
+            <h3>Smart Templates</h3>
+            <p>Choose from multiple documentation templates tailored for different use cases</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-chart-bar"></i>
+            </div>
+            <h3>Code Analytics</h3>
+            <p>Get detailed metrics and quality scores for your code</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-download"></i>
+            </div>
+            <h3>Export Options</h3>
+            <p>Download documentation in PDF, Markdown, or HTML formats</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Documentation Generator -->
+      <div class="generator-section">
+        <div class="section-header">
+          <h3><i class="fas fa-magic"></i> Generate Documentation</h3>
+          <p>Paste your code or upload a file to get started</p>
+        </div>
+
+        <div class="form-container">
+          <form action="/result" method="POST" enctype="multipart/form-data" class="upload-form" id="docForm">
+            <!-- Document Title -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-heading"></i>
+                Document Title
+              </label>
+              <input type="text" name="title" placeholder="Enter a title for your documentation" class="form-input" value="My Project Documentation">
+            </div>
+
+            <!-- Template Selection -->
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-layer-group"></i>
+                Documentation Template
+              </label>
+              <div class="template-grid">
+                {% for key, template in {
+                  'standard': 'Standard',
+                  'api': 'API Documentation', 
+                  'minimal': 'Minimal',
+                  'comprehensive': 'Comprehensive'
+                }.items() %}
+                <label class="template-card">
+                  <input type="radio" name="template" value="{{ key }}" {{ 'checked' if key == 'standard' }}>
+                  <div class="template-content">
+                    <i class="fas fa-{{ 'file-alt' if key == 'standard' else 'code' if key == 'api' else 'file' if key == 'minimal' else 'book' }}"></i>
+                    <span>{{ template }}</span>
+                  </div>
+                </label>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Code Input Methods -->
+            <div class="input-methods">
+              <!-- Paste Code -->
+              <div class="input-method active" id="pasteMethod">
+                <div class="method-header">
+                  <i class="fas fa-paste"></i>
+                  <span>Paste Code</span>
+                </div>
+                <div class="method-content">
+                  <textarea name="code" placeholder="// Paste your code here...&#10;// Supports: Python, JavaScript, Java, C++, C, HTML, CSS, PHP, Ruby, Go, TypeScript, Rust, Swift, Kotlin" class="code-textarea" id="codeTextarea"></textarea>
+                </div>
+              </div>
+
+              <!-- Upload File -->
+              <div class="input-method" id="uploadMethod">
+                <div class="method-header">
+                  <i class="fas fa-upload"></i>
+                  <span>Upload File</span>
+                </div>
+                <div class="method-content">
+                  <div class="file-upload-container">
+                    <input type="file" name="file" id="fileInput" accept=".py,.js,.java,.cpp,.c,.html,.css,.php,.rb,.go,.ts,.rs,.swift,.kt" hidden/>
+                    <label for="fileInput" class="file-upload-label">
+                      <i class="fas fa-cloud-upload-alt"></i>
+                      <span>Choose a code file</span>
+                    </label>
+                    <span id="fileName" class="file-name">No file chosen</span>
+                  </div>
+                  <div class="supported-files">
+                    <span>Supported: .py .js .java .cpp .c .html .css .php .rb .go .ts .rs .swift .kt</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Method Toggle -->
+            <div class="method-toggle">
+              <button type="button" class="toggle-btn active" data-method="paste">Paste Code</button>
+              <button type="button" class="toggle-btn" data-method="upload">Upload File</button>
+            </div>
+
+            <button type="submit" class="generate-btn" id="generateBtn">
+              <i class="fas fa-magic"></i>
+              Generate Documentation
+              <span class="loading-spinner" id="loadingSpinner"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>DocGenAI</h4>
+          <p>AI-powered code documentation generator for modern development teams.</p>
+        </div>
+        <div class="footer-section">
+          <h4>Features</h4>
+          <ul>
+            <li>Multi-language Support</li>
+            <li>Smart Templates</li>
+            <li>Code Analytics</li>
+            <li>Export Options</li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Connect</h4>
+          <div class="social-links">
+            <a href="#"><i class="fab fa-github"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>Built with <i class="fas fa-heart" style="color: #ff4757;"></i> using Flask & Google Gemini API</p>
+        <p>© 2024 DocGenAI - Modern Tool Usage Competition</p>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Method Toggle
+    const toggleBtns = document.querySelectorAll('.toggle-btn');
+    const inputMethods = document.querySelectorAll('.input-method');
+    
+    toggleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const method = btn.dataset.method;
+        
+        // Update buttons
+        toggleBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Update methods
+        inputMethods.forEach(method => method.classList.remove('active'));
+        document.getElementById(`${method}Method`).classList.add('active');
+      });
+    });
+
+    // File input functionality
+    document.getElementById('fileInput').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || 'No file chosen';
+      document.getElementById('fileName').textContent = fileName;
+    });
+
+    // Auto-resize textarea
+    const textarea = document.getElementById('codeTextarea');
+    textarea.addEventListener('input', function() {
+      this.style.height = 'auto';
+      this.style.height = (this.scrollHeight) + 'px';
+    });
+
+    // Form submission loading state
+    document.getElementById('docForm').addEventListener('submit', function() {
+      const btn = document.getElementById('generateBtn');
+      const spinner = document.getElementById('loadingSpinner');
+      
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      btn.innerHTML = '<i class="fas fa-magic"></i> Generating...';
+    });
+
+    // Syntax highlighting preview (basic)
+    function highlightSyntax() {
+      const codeTextarea = document.getElementById('codeTextarea');
+      // Basic syntax highlighting logic can be added here
+    }
+  </script>
+</body>
+</html>
